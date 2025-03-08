@@ -1,0 +1,72 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows", "linux-musl", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum BudgetPeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+
+  transactions Transaction[]
+  categories   Category[]
+  budgets      Budget[]
+  settings     Settings? @relation(fields: [id], references: [userId]) // 1:1
+}
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  date        DateTime
+  description String
+  amount      Decimal
+  type        String   @default("expense") // "income" ou "expense"
+  category    Category? @relation(fields: [categoryId], references: [id])
+  categoryId  Int?
+  createdAt   DateTime @default(now())
+}
+
+model Category {
+  id           Int         @id @default(autoincrement())
+  name         String
+  user         User        @relation(fields: [userId], references: [id])
+  userId       Int
+  transactions Transaction[]
+  budgets      Budget[]    // Correção: Referência para `Budget`
+  createdAt    DateTime    @default(now())
+}
+
+model Budget {
+  id          Int          @id @default(autoincrement())
+  user        User         @relation(fields: [userId], references: [id])
+  userId      Int
+  category    Category     @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  period      BudgetPeriod @default(MONTHLY)
+  limitAmount Decimal
+  createdAt   DateTime     @default(now())
+}
+
+model Settings {
+  id        Int     @id @default(autoincrement())
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int     @unique  // Correção: Garantir relação 1:1
+  currency  String  @default("BRL")
+  language  String  @default("pt-BR")
+  createdAt DateTime @default(now())
+}
