@@ -15,6 +15,11 @@ enum BudgetPeriod {
   YEARLY
 }
 
+enum TransactionsTypes {
+  PAGAMENTO
+  DESPESA
+}
+
 model User {
   id        Int       @id @default(autoincrement())
   name      String
@@ -25,17 +30,29 @@ model User {
   transactions Transaction[]
   categories   Category[]
   budgets      Budget[]
-  settings     Settings? @relation(fields: [id], references: [userId]) // 1:1
+  settings     Settings? 
+}
+
+model Statement {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  bankName    String
+  accountType String 
+  currency    String  @default("BRL")
+  importedAt  DateTime  @default(now())
+
+  transactions Transaction[]
 }
 
 model Transaction {
   id          Int      @id @default(autoincrement())
-  user        User     @relation(fields: [userId], references: [id])
-  userId      Int
+  user        User?     @relation(fields: [userId], references: [id])
+  userId      Int?
   date        DateTime
   description String
   amount      Decimal
-  type        String   @default("expense") // "income" ou "expense"
+  type        TransactionsTypes   @default(DESPESA)
   category    Category? @relation(fields: [categoryId], references: [id])
   categoryId  Int?
   createdAt   DateTime @default(now())
@@ -47,7 +64,7 @@ model Category {
   user         User        @relation(fields: [userId], references: [id])
   userId       Int
   transactions Transaction[]
-  budgets      Budget[]    // Correção: Referência para `Budget`
+  budgets      Budget[]    
   createdAt    DateTime    @default(now())
 }
 
@@ -65,7 +82,7 @@ model Budget {
 model Settings {
   id        Int     @id @default(autoincrement())
   user      User    @relation(fields: [userId], references: [id])
-  userId    Int     @unique  // Correção: Garantir relação 1:1
+  userId    Int     @unique 
   currency  String  @default("BRL")
   language  String  @default("pt-BR")
   createdAt DateTime @default(now())
