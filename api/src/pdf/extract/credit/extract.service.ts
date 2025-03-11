@@ -15,7 +15,7 @@ export function extractTransactions(text: string) {
       }
   
       // Agora usa os valores do enum Prisma
-      const type = amount < 0 ? "PAGAMENTO" : "DESPESA";
+      const type = amount < 0 ? "PAYMENT" : "EXPENSE";
   
       transactions.push({
         date: rawDate,
@@ -24,7 +24,6 @@ export function extractTransactions(text: string) {
         type: type,
       });
   
-      console.log(`📋 Transação Extraída:`, { date: rawDate, description: rawDescription, amount, type });
     }
   
     return transactions.length > 0 ? transactions : [{ message: 'Nenhuma transação encontrada.' }];

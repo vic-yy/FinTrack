@@ -13,4 +13,4 @@ import { UploadsService } from './uploads.service';
   controllers: [UploadsController],
   providers: [UploadsService],
 })
-export class UploadsPDFModule {}
+export class UploadsCSVModule {}

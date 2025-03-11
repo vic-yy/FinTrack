@@ -16,8 +16,10 @@ enum BudgetPeriod {
 }
 
 enum TransactionsTypes {
-  PAGAMENTO
-  DESPESA
+  PAYMENT
+  EXPENSE
+  INCOME
+  WITHDRAWAL
 }
 
 model User {
@@ -30,6 +32,7 @@ model User {
   transactions Transaction[]
   categories   Category[]
   budgets      Budget[]
+  statement    Statement[]
   settings     Settings? 
 }
 
@@ -49,10 +52,12 @@ model Transaction {
   id          Int      @id @default(autoincrement())
   user        User?     @relation(fields: [userId], references: [id])
   userId      Int?
+  statement   Statement? @relation(fields: [statementId], references: [id])
+  statementId Int?
   date        DateTime
   description String
   amount      Decimal
-  type        TransactionsTypes   @default(DESPESA)
+  type        TransactionsTypes
   category    Category? @relation(fields: [categoryId], references: [id])
   categoryId  Int?
   createdAt   DateTime @default(now())

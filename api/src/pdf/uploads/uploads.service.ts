@@ -14,7 +14,6 @@ export class UploadsService {
       const data = await pdfParse(file.buffer);
       const extractedText = data.text;
 
-      console.log(extractedText);
       const transactions = extractTransactions(extractedText);
       const processedData = ProcessService.processExtractedData({ 
         message: 'PDF processado com sucesso!', 

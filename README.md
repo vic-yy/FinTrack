@@ -13,9 +13,9 @@
 
 - Quando editamos alguma coisa no código:
     
-    docker-compose up -d api
+    npm run build
 
-    docker-compose restart database
+    docker-compose restart api
 
     rodamos a API
 
