@@ -18,6 +18,6 @@ export class UploadsController {
       return { message: 'Nenhum arquivo enviado' };
     }
   
-    return this.uploadsService.processCSV(file);
+    return this.uploadsService.processCSV(file, 1);
   }
 }

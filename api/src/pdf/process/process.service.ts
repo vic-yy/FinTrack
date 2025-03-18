@@ -14,7 +14,7 @@ export class ProcessService {
             return {
                 date: formattedDate,
                 description: transaction.description.trim(),
-                amount: formattedAmount, // Mantendo como número
+                amount: formattedAmount,
                 type
             };
         });

@@ -1,94 +1,103 @@
-generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "windows", "linux-musl", "debian-openssl-3.0.x"]
-}
+  generator client {
+    provider      = "prisma-client-js"
+    binaryTargets = ["native", "windows", "linux-musl", "debian-openssl-3.0.x"]
+  }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+  datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+  }
 
-enum BudgetPeriod {
-  DAILY
-  WEEKLY
-  MONTHLY
-  YEARLY
-}
+  enum BudgetPeriod {
+    DAILY
+    WEEKLY
+    MONTHLY
+    YEARLY
+  }
 
-enum TransactionsTypes {
-  PAYMENT
-  EXPENSE
-  INCOME
-  WITHDRAWAL
-}
+  enum TransactionsTypes {
+    PAYMENT
+    EXPENSE
+    INCOME
+    WITHDRAWAL
+  }
 
-model User {
-  id        Int       @id @default(autoincrement())
-  name      String
-  email     String    @unique
-  password  String
-  createdAt DateTime  @default(now())
+  model User {
+    id        Int       @id @default(autoincrement())
+    name      String
+    email     String    @unique
+    password  String
+    createdAt DateTime  @default(now())
 
-  transactions Transaction[]
-  categories   Category[]
-  budgets      Budget[]
-  statement    Statement[]
-  settings     Settings? 
-}
+    transactions Transaction[]
+    categories   Category[]
+    budgets      Budget[]
+    statement    Statement[]
+    settings     Settings? 
+  }
 
-model Statement {
-  id          Int      @id @default(autoincrement())
-  user        User     @relation(fields: [userId], references: [id])
-  userId      Int
-  bankName    String
-  accountType String 
-  currency    String  @default("BRL")
-  importedAt  DateTime  @default(now())
+  model Statement {
+    id          Int      @id @default(autoincrement())
+    user        User     @relation(fields: [userId], references: [id])
+    userId      Int
+    bankName    String
+    accountType String 
+    currency    String  @default("BRL")
+    importedAt  DateTime  @default(now())
 
-  transactions Transaction[]
-}
+    transactions Transaction[]
+  }
 
-model Transaction {
-  id          Int      @id @default(autoincrement())
-  user        User?     @relation(fields: [userId], references: [id])
-  userId      Int?
-  statement   Statement? @relation(fields: [statementId], references: [id])
-  statementId Int?
-  date        DateTime
-  description String
-  amount      Decimal
-  type        TransactionsTypes
-  category    Category? @relation(fields: [categoryId], references: [id])
-  categoryId  Int?
-  createdAt   DateTime @default(now())
-}
+  model Transaction {
+    id          Int      @id @default(autoincrement())
+    user        User?     @relation(fields: [userId], references: [id])
+    userId      Int?
+    statement   Statement? @relation(fields: [statementId], references: [id])
+    statementId Int?
+    date        DateTime
+    description String
+    amount      Decimal
+    type        TransactionsTypes
+    category    Category? @relation(fields: [categoryId], references: [id])
+    categoryId  Int?
+    createdAt   DateTime @default(now())
+  }
 
-model Category {
-  id           Int         @id @default(autoincrement())
-  name         String
-  user         User        @relation(fields: [userId], references: [id])
-  userId       Int
-  transactions Transaction[]
-  budgets      Budget[]    
-  createdAt    DateTime    @default(now())
-}
+  model Category {
+    id           Int         @id @default(autoincrement())
+    name         String
+    user         User        @relation(fields: [userId], references: [id])
+    userId       Int
+    keywords     CategoryKeyword[]
+    transactions Transaction[]
+    budgets      Budget[]    
+    createdAt    DateTime    @default(now())
+  }
 
-model Budget {
-  id          Int          @id @default(autoincrement())
-  user        User         @relation(fields: [userId], references: [id])
-  userId      Int
-  category    Category     @relation(fields: [categoryId], references: [id])
-  categoryId  Int
-  period      BudgetPeriod @default(MONTHLY)
-  limitAmount Decimal
-  createdAt   DateTime     @default(now())
-}
+  model CategoryKeyword {
+    id         Int      @id @default(autoincrement())
+    keyword    String   @unique
+    category   Category @relation(fields: [categoryId], references: [id])
+    categoryId Int
+    createdAt  DateTime @default(now())
+  }
 
-model Settings {
-  id        Int     @id @default(autoincrement())
-  user      User    @relation(fields: [userId], references: [id])
-  userId    Int     @unique 
-  currency  String  @default("BRL")
-  language  String  @default("pt-BR")
-  createdAt DateTime @default(now())
-}
+  model Budget {
+    id          Int          @id @default(autoincrement())
+    user        User         @relation(fields: [userId], references: [id])
+    userId      Int
+    category    Category     @relation(fields: [categoryId], references: [id])
+    categoryId  Int
+    period      BudgetPeriod @default(MONTHLY)
+    limitAmount Decimal
+    createdAt   DateTime     @default(now())
+  }
+
+  model Settings {
+    id        Int     @id @default(autoincrement())
+    user      User    @relation(fields: [userId], references: [id])
+    userId    Int     @unique 
+    currency  String  @default("BRL")
+    language  String  @default("pt-BR")
+    createdAt DateTime @default(now())
+  }

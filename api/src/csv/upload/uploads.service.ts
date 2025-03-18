@@ -1,14 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { parse } from 'csv-parse/sync';
-import { ProcessService } from '../process/process.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TransactionsTypes } from '@prisma/client';
+import { ProcessService } from '../process/process.service';
+import { CategoryService } from '../../category/services/category.service';
+
 
 @Injectable()
 export class UploadsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly categoryService: CategoryService
+  ) {}
 
-  async processCSV(file: Express.Multer.File) {
+  async processCSV(file: Express.Multer.File, userId: number) {
     try {
       const csvContent = file.buffer.toString('utf-8');
       const records = parse(csvContent, {
@@ -30,13 +35,17 @@ export class UploadsService {
       });
 
       for (const transaction of processedData.transactions) {
+        // 🔹 Encontra uma categoria baseada na descrição
+        const categoryId = await this.categoryService.categorizeTransaction(userId, transaction.description);
+
         await this.prisma.transaction.create({
           data: {
             date: new Date(transaction.date),
             description: transaction.description,
             amount: transaction.amount,
             type: transaction.type as TransactionsTypes,
-            userId: 1,
+            categoryId, 
+            userId,
           },
         });
       }
