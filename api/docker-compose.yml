@@ -1,0 +1,51 @@
+version: "3.8"
+services:
+  database:
+    image: postgres:10.4
+    container_name: extratos-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pwd123
+      POSTGRES_DB: extratosdb
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+  api:
+    container_name: extratos-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - database
+    ports:
+      - "3000:3000"
+    environment:
+      # Você pode injetar diretamente ou usar as chaves do .env
+      # Usando as variáveis do .env (no Docker Compose v2+)
+      DATABASE_URL: ${DATABASE_URL}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      
+      JWT_SECRET: ${JWT_SECRET}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      UPLOADS_PATH: ${UPLOADS_PATH}
+      
+      # Caso queira sobrescrever algo diretamente, por exemplo
+      # apontar para o serviço "database" em vez de "localhost" 
+      # DATABASE_URL: "postgresql://user:pwd123@database:5432/extratosdb"
+      
+      NODE_ENV: "production"
+      PORT: 3000
+
+    volumes:
+      - .:/app
+    # Se for rodar em produção, convém não mapear o código-fonte local
+    # e rodar apenas com a cópia do Dockerfile.
+
+volumes:
+  dbdata:
