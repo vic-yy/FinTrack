@@ -34,10 +34,20 @@ export class CategoryService {
 
     for (const category of categories) {
       if (category.keywords.some(k => description.toLowerCase().includes(k.keyword.toLowerCase()))) {
-        return category.id; // Retorna a categoria correspondente
+        return category.id; 
       }
     }
 
-    return null; // Retorna null se nenhuma categoria for encontrada
+    return null; 
   }
+
+  async getTransactionsByCategory(categoryId: number) {
+    return this.prisma.transaction.findMany({
+      where: { categoryId },
+      include: {
+        category: true, 
+      },
+    });
+  }
+  
 }

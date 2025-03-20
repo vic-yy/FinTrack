@@ -18,7 +18,7 @@ export class UploadsController {
       return { message: 'Nenhum arquivo enviado' };
     }
   
-    return this.uploadsService.processPDF(file);
+    return this.uploadsService.processPDF(file, 1);
   }
   
 }

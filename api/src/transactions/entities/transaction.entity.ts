@@ -8,13 +8,13 @@ export class Transaction {
   @Column({ type: 'date' })
   date: Date | undefined;
 
-  @Column()
+  @Column({ type: 'text' }) 
   description: string | undefined;
 
   @Column('float')
   amount: number | undefined;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text'})
   category: string | undefined;
 
   @CreateDateColumn()
