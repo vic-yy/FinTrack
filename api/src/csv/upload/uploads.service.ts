@@ -5,7 +5,6 @@ import { TransactionsTypes } from '@prisma/client';
 import { ProcessService } from '../process/process.service';
 import { CategoryService } from '../../category/services/category.service';
 
-
 @Injectable()
 export class UploadsService {
   constructor(
@@ -27,6 +26,7 @@ export class UploadsService {
         date: record['Data'],
         amount: parseFloat(record['Valor']),
         description: record['Descrição'],
+        type: record['Tipo'] as TransactionsTypes, // Supondo que o CSV tenha essa coluna
       }));
 
       const processedData = ProcessService.processExtractedData({
@@ -35,8 +35,9 @@ export class UploadsService {
       });
 
       for (const transaction of processedData.transactions) {
-        // 🔹 Encontra uma categoria baseada na descrição
-        const categoryId = await this.categoryService.categorizeTransaction(userId, transaction.description);
+        // 🔹 Classifica a transação baseado na descrição
+        const { categoryId, subcategoryId, isEssential } = 
+          await this.categoryService.categorizeTransaction(userId, transaction.description);
 
         await this.prisma.transaction.create({
           data: {
@@ -44,8 +45,10 @@ export class UploadsService {
             description: transaction.description,
             amount: transaction.amount,
             type: transaction.type as TransactionsTypes,
-            categoryId, 
+            categoryId,       // ✅ Categoria corretamente atribuída
+            subcategoryId,    // ✅ Subcategoria incluída
             userId,
+            isEssential
           },
         });
       }

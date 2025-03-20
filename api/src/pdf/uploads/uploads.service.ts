@@ -25,8 +25,8 @@ export class UploadsService {
       });
 
       for (const transaction of processedData.transactions) {
-        // 🔹 Encontra uma categoria baseada na descrição
-        const categoryId = await this.categoryService.categorizeTransaction(userId, transaction.description);
+        // 🔹 Classifica a transação baseado na descrição
+        const { categoryId, subcategoryId, isEssential } = await this.categoryService.categorizeTransaction(userId, transaction.description);
 
         await this.prisma.transaction.create({
           data: {
@@ -34,8 +34,10 @@ export class UploadsService {
             description: transaction.description,
             amount: transaction.amount,
             type: transaction.type as TransactionsTypes,
-            categoryId, // 🔹 Agora adicionando a categoria na transação
+            categoryId,       // ✅ Agora `categoryId` é corretamente um número ou null
+            subcategoryId,    // ✅ Adicionando também a subcategoria
             userId,
+            isEssential
           },
         });
       }
