@@ -7,7 +7,6 @@ export class CategoryController {
 
   @Post()
   async createCategories(@Body() categories: any) {
-    // ✅ Garante que `categories` seja um array antes de processar
     if (!Array.isArray(categories)) {
       throw new BadRequestException('O corpo da requisição deve ser um array de categorias.');
     }
@@ -20,8 +19,14 @@ export class CategoryController {
     return this.categoryService.getCategories(Number(userId));
   }
 
+
   @Get(':categoryId/transactions')
   async getTransactionsByCategory(@Param('categoryId') categoryId: string) {
     return this.categoryService.getTransactionsByCategory(Number(categoryId));
+  }
+
+  @Get(':userId/essential-transactions')
+  async getEssentialTransactionsByUser(@Param('userId') userId: string) {
+    return this.categoryService.getEssentialTransactionsBySubcategory(Number(userId));
   }
 }

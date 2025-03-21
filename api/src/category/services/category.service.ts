@@ -79,10 +79,33 @@ export class CategoryService {
     });
   }
 
+  
   async getTransactionsByCategory(categoryId: number) {
     return this.prisma.transaction.findMany({
       where: { categoryId },
       include: { category: true, subcategory: true },
+    });
+  }
+
+  async getEssentialTransactionsBySubcategory(userId: number) {
+    return this.prisma.subcategory.findMany({
+      where: {
+        transactions: {
+          some: { userId, isEssential: true }
+        }
+      },
+      include: {
+        transactions: {
+          where: { userId, isEssential: true },
+          select: {
+            id: true,
+            date: true,
+            description: true,
+            amount: true,
+            type: true,
+          }
+        }
+      }
     });
   }
 }
